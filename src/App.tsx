@@ -21,10 +21,11 @@ import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
+import AdminOffline from "./pages/admin/AdminOffline";
+import AdminOfflineCart from "./pages/admin/AdminOfflineCart";
 import AdminBatches from "./pages/admin/AdminBatches";
 import AdminOrders from "./pages/admin/AdminOrders";
-import AdminCustomers from "./pages/admin/AdminCustomers";
-import AdminReports from "./pages/admin/AdminReports";
+import AdminSoldProducts from "./pages/admin/AdminSoldProducts";
 import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
@@ -52,10 +53,11 @@ const App = () => (
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />
+              <Route path="offline" element={<AdminOffline />} />
+              <Route path="offline/cart" element={<AdminOfflineCart />} />
               <Route path="batches" element={<AdminBatches />} />
               <Route path="orders" element={<AdminOrders />} />
-              <Route path="customers" element={<AdminCustomers />} />
-              <Route path="reports" element={<AdminReports />} />
+              <Route path="sold-products" element={<AdminSoldProducts />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 

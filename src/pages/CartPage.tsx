@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trash2, ArrowLeft, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ const categoryImages: Record<string, string> = {
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, subtotal, shipping, total } = useCart();
+  const [searchParams] = useSearchParams();
+  const offlineMode = searchParams.get('offline') !== null;
 
   if (items.length === 0) {
     return (
@@ -97,9 +99,15 @@ export default function CartPage() {
                 <span className="font-bold text-primary text-lg tabular-nums">₹{total}</span>
               </div>
             </div>
-            <Button variant="hero" className="w-full mt-6" size="lg" asChild>
-              <Link to="/checkout">Proceed to Checkout</Link>
-            </Button>
+            {offlineMode ? (
+              <Button variant="hero" className="w-full mt-6" size="lg" onClick={() => window.print()}>
+                Print
+              </Button>
+            ) : (
+              <Button variant="hero" className="w-full mt-6" size="lg" asChild>
+                <Link to="/checkout">Proceed to Checkout</Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ const categoryImages: Record<string, string> = {
   'Traditional Specials': productSweet,
 };
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product, onBuy }: { product: Product, onBuy?: (product: Product, selectedWeight: string, multiplier: number) => void }) {
   const navigate = useNavigate();
   const image = product.image && product.image !== '/placeholder.svg' ? product.image : (categoryImages[product.category] || productPickle);
 
@@ -92,7 +92,11 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="mt-4">
             <Button
               variant="secondary"
-              onClick={(e) => { e.stopPropagation(); navigate(`/products/${product.id}`); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onBuy) onBuy(product, selectedWeight, multiplier);
+                else navigate(`/products/${product.id}`);
+              }}
               className="w-full"
             >
               Buy

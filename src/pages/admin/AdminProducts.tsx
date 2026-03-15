@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ export default function AdminProducts() {
   const [productList, setProductList] = useState<Product[]>(initialProducts);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = (id: string) => {
@@ -38,17 +40,24 @@ export default function AdminProducts() {
     const baseWeight = prices['500g'] ? '500g' : prices['1kg'] ? '1kg' : prices['250g'] ? '250g' : prices['750g'] ? '750g' : undefined;
     const basePrice = baseWeight ? prices[baseWeight] : (Number(data.get('price')) || 0);
 
+    const imgFile = data.get('image') as File | null;
+
+    let imageUrl = editProduct?.image || '/placeholder.svg';
+    if (imgFile && imgFile.size) {
+      imageUrl = URL.createObjectURL(imgFile);
+    }
+
     const newProduct: Product = {
       id: editProduct?.id || `p${Date.now()}`,
       name: (data.get('name') as string) || 'Untitled',
       category: (data.get('category') as string) || 'Sweets',
       price: basePrice,
       weight: baseWeight || (data.get('weight') as string) || '500g',
-      shelfLife: (data.get('shelfLife') as string) || '',
+      shelfLife: editProduct?.shelfLife || '',
       description: (data.get('description') as string) || '',
       shortDescription: ((data.get('description') as string) || '').slice(0, 60),
       ingredients: ((data.get('ingredients') as string) || '').split(',').map(s => s.trim()).filter(Boolean),
-      image: '/placeholder.svg',
+      image: imageUrl,
       rating: editProduct?.rating || 4.5,
       reviewCount: editProduct?.reviewCount || 0,
       inStock: true,
@@ -64,7 +73,13 @@ export default function AdminProducts() {
     }
     setEditProduct(null);
     setDialogOpen(false);
+    setImagePreview(null);
   };
+
+  useEffect(() => {
+    // when editing, prefill image preview
+    if (editProduct) setImagePreview(editProduct.image ?? null);
+  }, [editProduct]);
 
   return (
     <div className="space-y-6">
@@ -72,7 +87,7 @@ export default function AdminProducts() {
         <h2 className="text-xl font-serif font-bold text-foreground">Products</h2>
         <div className="flex items-center gap-4">
           <Input placeholder="Search products or categories..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-64" />
-          <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) setEditProduct(null); }}>
+          <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { setEditProduct(null); setImagePreview(null); } }}>
             <DialogTrigger asChild>
               <Button variant="hero" onClick={() => setEditProduct(null)}>
                 <Plus className="h-4 w-4 mr-2" /> Add Product
@@ -84,20 +99,14 @@ export default function AdminProducts() {
             </DialogHeader>
             <form onSubmit={handleSave} className="space-y-4">
               <div><Label>Name</Label><Input name="name" required defaultValue={editProduct?.name} /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Category</Label>
-                  <select name="category" required defaultValue={editProduct?.category || 'Sweets'} className="w-full rounded-md border p-2 bg-card text-sm">
-                    <option>Sweets</option>
-                    <option>Chips</option>
-                    <option>Pappads</option>
-                    <option>Pickles</option>
-                  </select>
-                </div>
-                <div>
-                  <Label>Expiry Date</Label>
-                  <Input name="shelfLife" type="date" defaultValue={editProduct?.shelfLife ?? undefined} />
-                </div>
+              <div>
+                <Label>Category</Label>
+                <select name="category" required defaultValue={editProduct?.category || 'Sweets'} className="w-full rounded-md border p-2 bg-card text-sm">
+                  <option>Sweets</option>
+                  <option>Chips</option>
+                  <option>Pappads</option>
+                  <option>Pickles</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -130,6 +139,27 @@ export default function AdminProducts() {
                 <Label>Ingredients (comma separated)</Label>
                 <Input name="ingredients" defaultValue={editProduct?.ingredients?.join(', ')} />
               </div>
+
+              <div>
+                <Label>Image (optional)</Label>
+                <input
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const f = (e.target as HTMLInputElement).files?.[0];
+                    if (f) setImagePreview(URL.createObjectURL(f));
+                    else setImagePreview(null);
+                  }}
+                  className="w-full"
+                />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img src={imagePreview} alt="preview" className="h-28 rounded-md object-cover" />
+                  </div>
+                )}
+              </div>
+
               <Button variant="hero" type="submit" className="w-full">Save Product</Button>
             </form>
             </DialogContent>

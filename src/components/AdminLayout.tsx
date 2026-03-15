@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
   { label: 'Products', icon: Package, path: '/admin/products' },
+  { label: 'Offline Buying', icon: ShoppingBag, path: '/admin/offline' },
   { label: 'Batches & QR', icon: QrCode, path: '/admin/batches' },
   { label: 'Orders', icon: ShoppingBag, path: '/admin/orders' },
-  { label: 'Customers', icon: Users, path: '/admin/customers' },
-  { label: 'Reports', icon: BarChart3, path: '/admin/reports' },
-  { label: 'Settings', icon: Settings, path: '/admin/settings' },
+  { label: 'Sold Products', icon: BarChart3, path: '/admin/sold-products' },
+  { label: 'Profile', icon: Settings, path: '/admin/settings' },
 ];
 
 export default function AdminLayout() {
