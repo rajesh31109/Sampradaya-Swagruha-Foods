@@ -13,6 +13,7 @@ export default function AdminProducts() {
   const [productList, setProductList] = useState<Product[]>(initialProducts);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = (id: string) => {
     setProductList(prev => prev.filter(p => p.id !== id));
@@ -23,20 +24,35 @@ export default function AdminProducts() {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
+    const prices: Record<string, number> = {};
+    const p250 = Number(data.get('price_250'));
+    const p500 = Number(data.get('price_500'));
+    const p750 = Number(data.get('price_750'));
+    const p1kg = Number(data.get('price_1kg'));
+    if (!isNaN(p250) && p250 > 0) prices['250g'] = p250;
+    if (!isNaN(p500) && p500 > 0) prices['500g'] = p500;
+    if (!isNaN(p750) && p750 > 0) prices['750g'] = p750;
+    if (!isNaN(p1kg) && p1kg > 0) prices['1kg'] = p1kg;
+
+    // Pick a base price/weight for the main listing: prefer 500g, then 1kg, then 250g, then 750g, else use explicit price field
+    const baseWeight = prices['500g'] ? '500g' : prices['1kg'] ? '1kg' : prices['250g'] ? '250g' : prices['750g'] ? '750g' : undefined;
+    const basePrice = baseWeight ? prices[baseWeight] : (Number(data.get('price')) || 0);
+
     const newProduct: Product = {
       id: editProduct?.id || `p${Date.now()}`,
-      name: data.get('name') as string,
-      category: data.get('category') as string,
-      price: Number(data.get('price')),
-      weight: data.get('weight') as string,
-      shelfLife: data.get('shelfLife') as string,
-      description: data.get('description') as string,
-      shortDescription: (data.get('description') as string).slice(0, 60),
-      ingredients: (data.get('ingredients') as string).split(',').map(s => s.trim()),
+      name: (data.get('name') as string) || 'Untitled',
+      category: (data.get('category') as string) || 'Sweets',
+      price: basePrice,
+      weight: baseWeight || (data.get('weight') as string) || '500g',
+      shelfLife: (data.get('shelfLife') as string) || '',
+      description: (data.get('description') as string) || '',
+      shortDescription: ((data.get('description') as string) || '').slice(0, 60),
+      ingredients: ((data.get('ingredients') as string) || '').split(',').map(s => s.trim()).filter(Boolean),
       image: '/placeholder.svg',
       rating: editProduct?.rating || 4.5,
       reviewCount: editProduct?.reviewCount || 0,
       inStock: true,
+      prices: Object.keys(prices).length ? prices : undefined,
     };
 
     if (editProduct) {
@@ -54,32 +70,71 @@ export default function AdminProducts() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-serif font-bold text-foreground">Products</h2>
-        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) setEditProduct(null); }}>
-          <DialogTrigger asChild>
-            <Button variant="hero" onClick={() => setEditProduct(null)}>
-              <Plus className="h-4 w-4 mr-2" /> Add Product
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
+        <div className="flex items-center gap-4">
+          <Input placeholder="Search products or categories..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-64" />
+          <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) setEditProduct(null); }}>
+            <DialogTrigger asChild>
+              <Button variant="hero" onClick={() => setEditProduct(null)}>
+                <Plus className="h-4 w-4 mr-2" /> Add Product
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="font-serif">{editProduct ? 'Edit Product' : 'Add Product'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSave} className="space-y-4">
               <div><Label>Name</Label><Input name="name" required defaultValue={editProduct?.name} /></div>
               <div className="grid grid-cols-2 gap-4">
-                <div><Label>Category</Label><Input name="category" required defaultValue={editProduct?.category} /></div>
-                <div><Label>Price (₹)</Label><Input name="price" type="number" required defaultValue={editProduct?.price} /></div>
+                <div>
+                  <Label>Category</Label>
+                  <select name="category" required defaultValue={editProduct?.category || 'Sweets'} className="w-full rounded-md border p-2 bg-card text-sm">
+                    <option>Sweets</option>
+                    <option>Chips</option>
+                    <option>Pappads</option>
+                    <option>Pickles</option>
+                  </select>
+                </div>
+                <div>
+                  <Label>Expiry Date</Label>
+                  <Input name="shelfLife" type="date" defaultValue={editProduct?.shelfLife ?? undefined} />
+                </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div><Label>Weight</Label><Input name="weight" required defaultValue={editProduct?.weight} /></div>
-                <div><Label>Shelf Life</Label><Input name="shelfLife" required defaultValue={editProduct?.shelfLife} /></div>
+                <div>
+                  <Label>250g Price (₹)</Label>
+                  <Input name="price_250" type="number" defaultValue={editProduct?.prices?.['250g'] ?? ''} />
+                </div>
+                <div>
+                  <Label>500g Price (₹)</Label>
+                  <Input name="price_500" type="number" defaultValue={editProduct?.prices?.['500g'] ?? ''} />
+                </div>
               </div>
-              <div><Label>Description</Label><Input name="description" required defaultValue={editProduct?.description} /></div>
-              <div><Label>Ingredients (comma separated)</Label><Input name="ingredients" required defaultValue={editProduct?.ingredients.join(', ')} /></div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>750g Price (₹)</Label>
+                  <Input name="price_750" type="number" defaultValue={editProduct?.prices?.['750g'] ?? ''} />
+                </div>
+                <div>
+                  <Label>1kg Price (₹)</Label>
+                  <Input name="price_1kg" type="number" defaultValue={editProduct?.prices?.['1kg'] ?? ''} />
+                </div>
+              </div>
+
+              <div>
+                <Label>Description (optional)</Label>
+                <Input name="description" defaultValue={editProduct?.description} />
+              </div>
+              <div>
+                <Label>Ingredients (comma separated)</Label>
+                <Input name="ingredients" defaultValue={editProduct?.ingredients?.join(', ')} />
+              </div>
               <Button variant="hero" type="submit" className="w-full">Save Product</Button>
             </form>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="bg-card rounded-2xl shadow-card overflow-hidden">
@@ -95,7 +150,11 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {productList.map((p, i) => (
+              {productList.filter(p => {
+                const term = searchTerm.trim().toLowerCase();
+                if (!term) return true;
+                return p.name.toLowerCase().includes(term) || p.category.toLowerCase().includes(term);
+              }).map((p, i) => (
                 <motion.tr
                   key={p.id}
                   initial={{ opacity: 0 }}

@@ -31,17 +31,7 @@ export default function HomePage() {
   const featured = products.slice(0, 4);
   // Use a single hero image provided by the user at `src/assets/hero1.jpg` if present.
   const defaultHero = heroFood || productSweet;
-  const heroCandidate = '/src/assets/hero1.jpg';
-  const [heroImage, setHeroImage] = useState<string>(defaultHero);
-
-  useEffect(() => {
-    let mounted = true;
-    const img = new Image();
-    img.onload = () => { if (mounted) setHeroImage(heroCandidate); };
-    img.onerror = () => { if (mounted) setHeroImage(defaultHero); };
-    img.src = heroCandidate;
-    return () => { mounted = false; };
-  }, []);
+  const [heroImage] = useState<string>(defaultHero);
 
   return (
     <StorefrontLayout>
