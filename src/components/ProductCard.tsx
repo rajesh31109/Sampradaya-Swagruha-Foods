@@ -1,11 +1,9 @@
-import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/types';
-import { useCart } from '@/contexts/CartContext';
-import { toast } from 'sonner';
 
 import productPickle from '@/assets/product-pickle.jpg';
 import productSweet from '@/assets/product-sweet.jpg';
@@ -21,7 +19,7 @@ const categoryImages: Record<string, string> = {
 };
 
 export default function ProductCard({ product }: { product: Product }) {
-  const { addToCart } = useCart();
+  const navigate = useNavigate();
   const image = product.image && product.image !== '/placeholder.svg' ? product.image : (categoryImages[product.category] || productPickle);
 
   const weightOptions = [
@@ -42,12 +40,11 @@ export default function ProductCard({ product }: { product: Product }) {
 
 
   return (
-    <Link to={`/products/${product.id}`}>
-      <motion.div
-        whileHover={{ y: -4 }}
-        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-        className="group bg-card rounded-2xl shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden"
-      >
+    <motion.div
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      className="group bg-card rounded-2xl shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden"
+    >
         <div className="relative aspect-square overflow-hidden">
           <img
             src={image}
@@ -91,8 +88,17 @@ export default function ProductCard({ product }: { product: Product }) {
               <span className="tabular-nums">{product.rating}</span>
             </div>
           </div>
+
+          <div className="mt-4">
+            <Button
+              variant="secondary"
+              onClick={(e) => { e.stopPropagation(); navigate(`/products/${product.id}`); }}
+              className="w-full"
+            >
+              Buy
+            </Button>
+          </div>
         </div>
       </motion.div>
-    </Link>
   );
 }
