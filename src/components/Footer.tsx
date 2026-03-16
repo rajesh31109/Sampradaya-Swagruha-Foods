@@ -24,7 +24,7 @@ export default function Footer() {
               ))}
               <li>
                 <Link to="/pos" className="text-sm text-primary-foreground/70 hover:text-gold transition-colors">
-                  Point of Sale
+                  POS Login
                 </Link>
               </li>
               <li>
