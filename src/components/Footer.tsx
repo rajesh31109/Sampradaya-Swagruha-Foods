@@ -23,6 +23,11 @@ export default function Footer() {
                 </li>
               ))}
               <li>
+                <Link to="/pos" className="text-sm text-primary-foreground/70 hover:text-gold transition-colors">
+                  Point of Sale
+                </Link>
+              </li>
+              <li>
                 <Link to="/admin" className="text-sm text-primary-foreground/70 hover:text-gold transition-colors">
                   Admin
                 </Link>

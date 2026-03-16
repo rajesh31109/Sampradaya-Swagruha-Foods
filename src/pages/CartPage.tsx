@@ -49,7 +49,7 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-4">
             {items.map((item, i) => (
               <motion.div
-                key={`${item.product.id}-${item.selectedWeight || 'default'}`}
+                key={`${item.product.id}-${i}`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
@@ -64,14 +64,14 @@ export default function CartPage() {
                 </Link>
                 <div className="flex-1">
                   <h3 className="font-serif font-semibold text-card-foreground">{item.product.name}</h3>
-                  <p className="text-sm text-muted-foreground">{item.selectedWeight || item.product.weight} · {item.quantity === 1 ? 'Single' : `${item.quantity} pcs`}</p>
+                  <p className="text-sm text-muted-foreground">{item.quantity === 1 ? 'Single' : `${item.quantity} pcs`}</p>
                   <div className="mt-1">
                     <p className="text-sm text-muted-foreground">Price: <span className="text-primary font-bold tabular-nums">₹{item.unitPrice ?? item.product.price}</span> each</p>
                     <p className="text-primary font-bold tabular-nums">Total: ₹{(item.unitPrice ?? item.product.price) * item.quantity}</p>
                   </div>
                 </div>
                 <div className="flex flex-col items-end justify-between">
-                  <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.product.id, item.selectedWeight)} className="text-muted-foreground hover:text-destructive">
+                  <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.product.id)} className="text-muted-foreground hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                   <div className="mt-2 text-sm text-muted-foreground bg-muted rounded-lg px-3 py-2">

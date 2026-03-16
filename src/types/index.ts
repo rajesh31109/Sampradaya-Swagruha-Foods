@@ -30,6 +30,7 @@ export interface Batch {
   manufactureDate: string;
   expiryDate: string;
   quantity: number;
+  selectedWeight?: string;
   status: 'fresh' | 'expiring-soon' | 'expired';
 }
 

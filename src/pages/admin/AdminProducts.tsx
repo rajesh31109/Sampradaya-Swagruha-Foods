@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 export default function AdminProducts() {
   const [productList, setProductList] = useState<Product[]>(initialProducts);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [selectedWeight, setSelectedWeight] = useState<string>('1kg');
+  const [formPrices, setFormPrices] = useState<Record<string, number | ''>>({ '250g':'', '500g':'', '750g':'', '1kg':'' });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -78,7 +80,16 @@ export default function AdminProducts() {
 
   useEffect(() => {
     // when editing, prefill image preview
-    if (editProduct) setImagePreview(editProduct.image ?? null);
+    if (editProduct) {
+      setImagePreview(editProduct.image ?? null);
+      setFormPrices({
+        '250g': editProduct.prices?.['250g'] ?? '',
+        '500g': editProduct.prices?.['500g'] ?? '',
+        '750g': editProduct.prices?.['750g'] ?? '',
+        '1kg': editProduct.prices?.['1kg'] ?? '',
+      });
+      setSelectedWeight(editProduct.weight ?? '1kg');
+    }
   }, [editProduct]);
 
   return (
@@ -89,7 +100,7 @@ export default function AdminProducts() {
           <Input placeholder="Search products or categories..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-64" />
           <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { setEditProduct(null); setImagePreview(null); } }}>
             <DialogTrigger asChild>
-              <Button variant="hero" onClick={() => setEditProduct(null)}>
+              <Button variant="hero" onClick={() => { setEditProduct(null); setSelectedWeight('1kg'); setFormPrices({'250g':'','500g':'','750g':'','1kg':''}); }}>
                 <Plus className="h-4 w-4 mr-2" /> Add Product
               </Button>
             </DialogTrigger>
@@ -109,26 +120,27 @@ export default function AdminProducts() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>250g Price (₹)</Label>
-                  <Input name="price_250" type="number" defaultValue={editProduct?.prices?.['250g'] ?? ''} />
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-36">
+                    <Label className="text-xs">Quantity</Label>
+                    <select name="weight" value={selectedWeight} onChange={(e) => setSelectedWeight(e.target.value)} className="w-full rounded-md border p-2 bg-card text-sm">
+                      <option value="250g">250g</option>
+                      <option value="500g">500g</option>
+                      <option value="750g">750g</option>
+                      <option value="1kg">1kg</option>
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-xs">Price (₹)</Label>
+                    <Input name="price_selected" type="number" value={formPrices[selectedWeight] ?? ''} onChange={(e) => setFormPrices({ ...formPrices, [selectedWeight]: Number(e.target.value || '') })} />
+                  </div>
                 </div>
-                <div>
-                  <Label>500g Price (₹)</Label>
-                  <Input name="price_500" type="number" defaultValue={editProduct?.prices?.['500g'] ?? ''} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>750g Price (₹)</Label>
-                  <Input name="price_750" type="number" defaultValue={editProduct?.prices?.['750g'] ?? ''} />
-                </div>
-                <div>
-                  <Label>1kg Price (₹)</Label>
-                  <Input name="price_1kg" type="number" defaultValue={editProduct?.prices?.['1kg'] ?? ''} />
-                </div>
+                {/* Hidden inputs for backward compatibility with existing save logic */}
+                <input type="hidden" name="price_250" value={formPrices['250g'] ?? ''} />
+                <input type="hidden" name="price_500" value={formPrices['500g'] ?? ''} />
+                <input type="hidden" name="price_750" value={formPrices['750g'] ?? ''} />
+                <input type="hidden" name="price_1kg" value={formPrices['1kg'] ?? ''} />
               </div>
 
               <div>

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
   { label: 'Products', icon: Package, path: '/admin/products' },
-  { label: 'Billing name', icon: ShoppingBag, path: '/admin/offline' },
+    // billing name removed per request
   { label: 'Batches & QR', icon: QrCode, path: '/admin/batches' },
   { label: 'Orders', icon: ShoppingBag, path: '/admin/orders' },
   { label: 'Sold Products', icon: BarChart3, path: '/admin/sold-products' },

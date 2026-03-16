@@ -1,13 +1,11 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Minus, Plus, ShoppingCart, Star } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import StorefrontLayout from '@/components/StorefrontLayout';
 import ProductCard from '@/components/ProductCard';
 import { products } from '@/data/mockData';
-import { useCart } from '@/contexts/CartContext';
-import { toast } from 'sonner';
+// cart and toast removed for simplified product view
 
 import productPickle from '@/assets/product-pickle.jpg';
 import productSweet from '@/assets/product-sweet.jpg';
@@ -25,23 +23,7 @@ const categoryImages: Record<string, string> = {
 export default function ProductDetailPage() {
   const { id } = useParams();
   const product = products.find(p => p.id === id);
-  const { addToCart } = useCart();
-  const [qty, setQty] = useState(1);
-  const weightOptions = [
-    { label: '250g', multiplier: 0.5 },
-    { label: '500g', multiplier: 1 },
-    { label: '750g', multiplier: 1.5 },
-    { label: '1kg', multiplier: 2 },
-  ];
-  const defaultOption = weightOptions.find(o => o.label === product.weight) || weightOptions[3];
-  const [selectedWeight, setSelectedWeight] = useState(defaultOption.label);
-  const [multiplier, setMultiplier] = useState(defaultOption.multiplier);
-
-  const handleWeightChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const opt = weightOptions.find(o => o.label === e.target.value)!;
-    setSelectedWeight(opt.label);
-    setMultiplier(opt.multiplier);
-  };
+  // purchase controls removed; product view is simplified
 
   if (!product) {
     return (
@@ -57,11 +39,7 @@ export default function ProductDetailPage() {
   const image = product.image && product.image !== '/placeholder.svg' ? product.image : (categoryImages[product.category] || productPickle);
   const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
 
-  const handleAddToCart = () => {
-    const unitPrice = Math.round(product.price * multiplier);
-    addToCart(product, qty, selectedWeight, multiplier, unitPrice);
-    toast.success(`${product.name} added to cart`);
-  };
+  // Add-to-cart removed per requirements
 
   return (
     <StorefrontLayout>
@@ -102,20 +80,7 @@ export default function ProductDetailPage() {
 
             <p className="text-muted-foreground text-pretty leading-relaxed mb-6">{product.description}</p>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground">Weight</p>
-                <p className="font-semibold text-sm text-foreground">{product.weight}</p>
-              </div>
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground">Shelf Life</p>
-                <p className="font-semibold text-sm text-foreground">{product.shelfLife}</p>
-              </div>
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground">Status</p>
-                <p className="font-semibold text-sm text-foreground">In Stock</p>
-              </div>
-            </div>
+            {/* Weight and Status display removed per request */}
 
             <div className="mb-4">
               <p className="text-sm font-semibold text-foreground mb-2">Ingredients</p>
@@ -126,34 +91,7 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 mt-6">
-              <div className="flex items-center gap-3 bg-muted rounded-lg px-2">
-                <Button variant="ghost" size="icon" onClick={() => setQty(Math.max(1, qty - 1))} className="h-10 w-10">
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="w-8 text-center font-semibold tabular-nums">{qty}</span>
-                <Button variant="ghost" size="icon" onClick={() => setQty(qty + 1)} className="h-10 w-10">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-                <div className="flex items-center gap-3">
-                  {weightOptions.map(o => {
-                    const active = selectedWeight === o.label;
-                    return (
-                      <button
-                        key={o.label}
-                        onClick={() => { const opt = weightOptions.find(x => x.label === o.label)!; setSelectedWeight(opt.label); setMultiplier(opt.multiplier); }}
-                        className={`px-3 py-2 rounded-md text-sm ${active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-primary/10'}`}
-                      >
-                        {o.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              <Button variant="hero" size="lg" onClick={handleAddToCart} className="flex-1">
-                <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
-              </Button>
-            </div>
+            {/* Purchase controls removed: quantity selector, weight options and add-to-cart */}
           </motion.div>
         </div>
 

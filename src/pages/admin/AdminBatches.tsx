@@ -5,7 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { batches as initialBatches } from '@/data/mockData';
+import { batches as initialBatches, products as allProducts } from '@/data/mockData';
 import { Batch } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
@@ -15,13 +15,29 @@ export default function AdminBatches() {
   const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null);
   const [addOpen, setAddOpen] = useState(false);
 
+  const resolveDisplayName = (b: Batch) => {
+    const prod = allProducts.find(p => p.id === b.productId || p.name === b.productName);
+    const weight = b.selectedWeight || (prod ? (prod.prices ? (prod.prices['500g'] ? '500g' : (prod.prices['1kg'] ? '1kg' : Object.keys(prod.prices)[0])) : prod.weight) : undefined);
+    return b.productName + (weight ? ` — ${weight}` : '');
+  };
+
   const handleAdd = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
+    const prodSel = String(data.get('product_select') || '');
+    let pid = '';
+    let selWeight: string | undefined = undefined;
+    if (prodSel) {
+      const parts = prodSel.split('||');
+      pid = parts[0];
+      selWeight = parts[1];
+    }
+    const productObj = allProducts.find(p => p.id === pid);
     const newBatch: Batch = {
       id: `BATCH${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
-      productId: '',
-      productName: data.get('productName') as string,
+      productId: pid,
+      productName: productObj?.name || String(data.get('productName') || ''),
+      selectedWeight: selWeight,
       manufactureDate: data.get('manufactureDate') as string,
       expiryDate: data.get('expiryDate') as string,
       quantity: Number(data.get('quantity')),
@@ -33,7 +49,7 @@ export default function AdminBatches() {
   };
 
   const qrData = (batch: Batch) => JSON.stringify({
-    product: batch.productName,
+    product: batch.productName + (batch.selectedWeight ? ` — ${batch.selectedWeight}` : ''),
     batchId: batch.id,
     manufactured: batch.manufactureDate,
     expiry: batch.expiryDate,
@@ -50,12 +66,25 @@ export default function AdminBatches() {
           <DialogContent>
             <DialogHeader><DialogTitle className="font-serif">Create Batch</DialogTitle></DialogHeader>
             <form onSubmit={handleAdd} className="space-y-4">
-              <div><Label>Product Name</Label><Input name="productName" required /></div>
+              <div>
+                <Label>Product</Label>
+                <select name="product_select" required className="w-full rounded-md border p-2 bg-card text-sm">
+                  <option value="">Select product</option>
+                  {allProducts.map(p => {
+                    const weights = p.prices ? Object.keys(p.prices) : [p.weight];
+                    return weights.map(w => (
+                      <option key={`${p.id}-${w}`} value={`${p.id}||${w}`}>
+                        {p.name} — {w}
+                      </option>
+                    ));
+                  })}
+                </select>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Manufacture Date</Label><Input name="manufactureDate" type="date" required /></div>
                 <div><Label>Expiry Date</Label><Input name="expiryDate" type="date" required /></div>
               </div>
-              <div><Label>Quantity</Label><Input name="quantity" type="number" required /></div>
+              <div><Label>QR Codes Quantity</Label><Input name="quantity" type="number" required /></div>
               <Button variant="hero" type="submit" className="w-full">Create Batch</Button>
             </form>
           </DialogContent>
@@ -72,7 +101,7 @@ export default function AdminBatches() {
                   <th className="text-left px-5 py-3 text-muted-foreground font-medium">Product</th>
                   <th className="text-left px-5 py-3 text-muted-foreground font-medium">Mfg Date</th>
                   <th className="text-left px-5 py-3 text-muted-foreground font-medium">Expiry</th>
-                  <th className="text-left px-5 py-3 text-muted-foreground font-medium">Qty</th>
+                  <th className="text-left px-5 py-3 text-muted-foreground font-medium">QR Qty</th>
                   <th className="text-left px-5 py-3 text-muted-foreground font-medium">QR</th>
                 </tr>
               </thead>
@@ -87,7 +116,7 @@ export default function AdminBatches() {
                     onClick={() => setSelectedBatch(b)}
                   >
                     <td className="px-5 py-3 font-semibold tabular-nums">{b.id}</td>
-                    <td className="px-5 py-3">{b.productName}</td>
+                    <td className="px-5 py-3">{resolveDisplayName(b)}</td>
                     <td className="px-5 py-3 tabular-nums text-muted-foreground">{b.manufactureDate}</td>
                     <td className="px-5 py-3 tabular-nums text-muted-foreground">{b.expiryDate}</td>
                     <td className="px-5 py-3 tabular-nums">{b.quantity}</td>

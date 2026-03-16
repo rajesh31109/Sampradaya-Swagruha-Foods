@@ -1,4 +1,4 @@
-import { useState } from 'react';
+// no local state needed for simplified card
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
@@ -21,22 +21,8 @@ const categoryImages: Record<string, string> = {
 export default function ProductCard({ product, onBuy }: { product: Product, onBuy?: (product: Product, selectedWeight: string, multiplier: number) => void }) {
   const navigate = useNavigate();
   const image = product.image && product.image !== '/placeholder.svg' ? product.image : (categoryImages[product.category] || productPickle);
-
-  const weightOptions = [
-    { label: '250g', multiplier: 0.5 },
-    { label: '500g', multiplier: 1 },
-    { label: '750g', multiplier: 1.5 },
-    { label: '1kg', multiplier: 2 },
-  ];
-  const defaultOption = weightOptions.find(o => o.label === '1kg') || weightOptions[1];
-  const [selectedWeight, setSelectedWeight] = useState(defaultOption.label);
-  const [multiplier, setMultiplier] = useState(defaultOption.multiplier);
-
-  const handleWeightChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const opt = weightOptions.find(o => o.label === e.target.value)!;
-    setSelectedWeight(opt.label);
-    setMultiplier(opt.multiplier);
-  };
+  // Default multiplier for 1kg weight (keeps price consistent with 1kg)
+  const multiplier = 2;
 
 
   return (
@@ -61,26 +47,7 @@ export default function ProductCard({ product, onBuy }: { product: Product, onBu
         <div className="p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{product.category}</p>
           <h3 className="font-serif font-semibold text-lg leading-tight mb-1 text-card-foreground">{product.name}</h3>
-          <p className="text-sm text-muted-foreground mb-3">{product.shelfLife} shelf life</p>
-          <div className="mb-3">
-            <label className="text-xs text-muted-foreground block mb-2">Quantity</label>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                {weightOptions.map(o => {
-                  const active = selectedWeight === o.label;
-                  return (
-                    <button
-                      key={o.label}
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedWeight(o.label); setMultiplier(o.multiplier); }}
-                      className={`px-3 py-2 rounded-md text-sm ${active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-primary/10'}`}
-                    >
-                      {o.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          {/* shelf life and quantity controls removed per request */}
           <div className="flex items-center justify-between">
             <span className="text-primary font-bold tabular-nums text-lg">₹{Math.round(product.price * multiplier)}</span>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -92,14 +59,10 @@ export default function ProductCard({ product, onBuy }: { product: Product, onBu
           <div className="mt-4">
             <Button
               variant="secondary"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onBuy) onBuy(product, selectedWeight, multiplier);
-                else navigate(`/products/${product.id}`);
-              }}
+              onClick={(e) => { e.stopPropagation(); navigate(`/products/${product.id}`); }}
               className="w-full"
             >
-              Buy
+              Product Details
             </Button>
           </div>
         </div>
