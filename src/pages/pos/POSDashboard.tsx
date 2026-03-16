@@ -47,6 +47,34 @@ export default function POSDashboard() {
   const dec = (index:number) => setCart(prev => prev.map((c,i)=> i===index?{...c, qty: Math.max(0,c.qty-1)}:c).filter(c=>c.qty>0));
   const remove = (index:number) => setCart(prev => prev.filter((_,i)=>i!==index));
 
+  // Persist sales per branch in sessionStorage
+  const placeOrder = () => {
+    if (!branchId) return alert('No branch selected');
+    if (cart.length === 0) return alert('No items in cart');
+    const salesKey = 'pos_sales';
+    const existing = JSON.parse(sessionStorage.getItem(salesKey) || '[]');
+    const sale = { branchId, items: cart.map(c => ({ id: c.product.id, name: c.product.name, weight: c.weight, price: c.price, qty: c.qty })), date: new Date().toISOString() };
+    existing.push(sale);
+    sessionStorage.setItem(salesKey, JSON.stringify(existing));
+    setCart([]);
+    alert('Order placed (mock)');
+  };
+
+  // Compute sold products for this branch
+  const soldProducts = useMemo(() => {
+    const salesKey = 'pos_sales';
+    const all = JSON.parse(sessionStorage.getItem(salesKey) || '[]') as Array<any>;
+    const forBranch = all.filter(s => s.branchId === branchId);
+    const agg: Record<string, { id:string; name:string; qty:number }> = {};
+    forBranch.forEach(s => {
+      s.items.forEach((it: any) => {
+        if (!agg[it.id]) agg[it.id] = { id: it.id, name: it.name, qty: 0 };
+        agg[it.id].qty += it.qty;
+      });
+    });
+    return Object.values(agg);
+  }, [branchId, cart]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -116,13 +144,26 @@ export default function POSDashboard() {
 
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <Button variant="outline" onClick={() => setCart([])}>Clear</Button>
-                <Button onClick={() => { alert('Order placed (mock)'); setCart([]); }}>Place Order</Button>
+                <Button onClick={() => placeOrder()}>Place Order</Button>
               </div>
             </div>
           </div>
         </aside>
       </div>
       </div>
+          {soldProducts.length > 0 && (
+            <div className="mt-8">
+              <h4 className="font-semibold mb-3">Sold products (this branch)</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {soldProducts.map(s => (
+                  <div key={s.id} className="p-3 bg-muted rounded-md flex items-center justify-between">
+                    <div className="font-medium">{s.name}</div>
+                    <div className="text-sm text-muted-foreground">Qty: {s.qty}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
       <Footer />
     </div>
   );
