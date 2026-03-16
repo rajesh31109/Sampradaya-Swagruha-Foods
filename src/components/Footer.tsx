@@ -59,7 +59,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-primary-foreground/10 text-center text-sm text-primary-foreground/50">
-          © 2026 Sampradaya Swagruha Foods. Designed and Developed by <span className="font-mono">&lt;/&gt;</span> CodeAurora
+          <div>© 2026 Sampradaya Swagruha Foods.</div>
+          <div className="mt-1">Designed and Developed by <span className="font-mono">&lt;/&gt;</span> CodeAurora</div>
         </div>
       </div>
     </footer>
