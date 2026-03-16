@@ -17,6 +17,8 @@ import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import QRScanResultPage from "./pages/QRScanResultPage";
 import NotFound from "./pages/NotFound";
+import POSLogin from './pages/pos/POSLogin';
+import POSDashboard from './pages/pos/POSDashboard';
 
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -49,6 +51,8 @@ const App = () => (
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/qr-result" element={<QRScanResultPage />} />
+            <Route path="/pos" element={<POSLogin />} />
+            <Route path="/pos/dashboard" element={<POSDashboard />} />
 
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />

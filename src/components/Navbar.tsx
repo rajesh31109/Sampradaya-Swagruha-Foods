@@ -12,7 +12,7 @@ const navLinks = [
   { name: 'Contact', path: '/contact' },
 ];
 
-export default function Navbar() {
+export default function Navbar({ hideCart }: { hideCart?: boolean }) {
   const { totalItems } = useCart();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -41,19 +41,21 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link to="/cart" className="relative">
-              <Button variant="ghost" size={totalItems > 0 ? "default" : "icon"} className={totalItems > 0 ? "px-3" : undefined}>
-                <ShoppingCart className="h-5 w-5" strokeWidth={1.5} />
-                {totalItems > 0 ? (
-                  <span className="hidden md:inline text-sm font-medium">Add to Cart</span>
-                ) : null}
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            {!hideCart && (
+              <Link to="/cart" className="relative">
+                <Button variant="ghost" size={totalItems > 0 ? "default" : "icon"} className={totalItems > 0 ? "px-3" : undefined}>
+                  <ShoppingCart className="h-5 w-5" strokeWidth={1.5} />
+                  {totalItems > 0 ? (
+                    <span className="hidden md:inline text-sm font-medium">Add to Cart</span>
+                  ) : null}
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+                      {totalItems}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            )}
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>

@@ -242,3 +242,21 @@ export const customers: Customer[] = [
   { id: 'c3', name: 'Lakshmi Devi', email: 'lakshmi@example.com', phone: '9876543212', ordersCount: 8, totalSpending: 6800 },
   { id: 'c4', name: 'Anand Reddy', email: 'anand@example.com', phone: '9876543213', ordersCount: 2, totalSpending: 1200 },
 ];
+
+// Branches and POS credentials
+export const branches = [
+  { id: 'b1', name: 'Hyderabad Shop' },
+  { id: 'b2', name: 'Secunderabad Shop' },
+];
+
+// Simple credentials for two employees (DO NOT use in production)
+export const posUsers = [
+  { username: 'hyderabademp', password: 'shop1pass', branchId: 'b1' },
+  { username: 'secundemp', password: 'shop2pass', branchId: 'b2' },
+];
+
+// Which products are available at each branch (by product id)
+export const branchProducts: Record<string, string[]> = {
+  b1: ['p1','p3','p5','p7'],
+  b2: ['p2','p4','p6','p8'],
+};
