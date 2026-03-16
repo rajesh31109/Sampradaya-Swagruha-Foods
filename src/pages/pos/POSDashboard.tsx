@@ -122,7 +122,6 @@ export default function POSDashboard() {
           </div>
         </aside>
       </div>
-        </div>
       </div>
       <Footer />
     </div>
